@@ -16,6 +16,7 @@ class Model(object):
         self.dic_fvq = self.r1.dic
         self.dic_num = self.r2.dic
         self.dic = {}
+        self.dic_list = []
         self.type_dic = {}
         self.subtypes = r1.subtypes
         
@@ -34,6 +35,7 @@ class Model(object):
 
         content = ""
         result = sorted(self.dic.items(), key = lambda d: d[1][1])[::-1]
+        self.dic_list = result
         path = self.res_dir + '/model_num.txt'
         for query,freq in result:
             line = (query + '\t' + str(freq) + '\n')

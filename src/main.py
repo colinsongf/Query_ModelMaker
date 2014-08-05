@@ -1,4 +1,4 @@
-import os, sys, re, rw, pre, sort, NEfilter, rank, model, parser, pick, remodel
+import os, sys, re, rw, pre, sort, NEfilter, rank, model, parser, pick, remodel, analysis, sync
 
 def make_dir():
     os.mkdir("../pre")
@@ -30,6 +30,9 @@ def pre_process():
 def filter():
     try:
         os.mkdir("../sorted")
+    except:
+        pass
+    try:
         os.mkdir("../result")
     except:
         pass
@@ -62,16 +65,19 @@ def NEF():
 
 def RANK(f):
     try:
-        os.mkdir("../result/fvq")
         os.mkdir("../result/num")
+    except:
+        pass
+    try:
+        os.mkdir("../result/sqv")
     except:
         pass
     print "********************"
     print "Ranking..."
     src_dir = "../NEfilter"
     res_dir = "../result/rank_init.txt"
-    class_dir = "../result/fvq"
-    mode = "fvq"
+    class_dir = "../result/sqv"
+    mode = "sqv"
     r1 = rank.ranker(src_dir,res_dir,class_dir,mode)
     r1.rank()
     r1.classification(f)
@@ -93,17 +99,24 @@ def RANK(f):
 def MODEL(r1,r2):
     try:
         os.mkdir("../model")
-        os.mkdir("../model/fvq")
+    except:
+        pass
+    try:
+        os.mkdir("../model/sqv")
+    except:
+        pass
+    try:
         os.mkdir("../model/num")
     except:
         pass
+    
     print "********************"
     print "Modeling..."
     res_dir = "../model"
-    fvq_dir = "../model/fvq"
+    fvq_dir = "../model/sqv"
     num_dir = "../model/num"
-    min_ratio1 = 0.00005
-    min_ratio2 = 0.0001
+    min_ratio1 = 0.00002
+    min_ratio2 = 0.00015
     m = model.Model(res_dir,fvq_dir,num_dir,r1,r2,min_ratio1,min_ratio2)
     m.filter()
     m.classification()
@@ -130,9 +143,9 @@ def PICK():
     print "********************"
     print "Picking..."
     src_dir = "../model"
-    res_dir = "../result/highfvq_nonword.txt"
+    res_dir = "../result/highsqv_nonword.txt"
     dict_dir = "../P+A.hash"
-    rank_dir = "../result/highfvq_word.txt"
+    rank_dir = "../result/highsqv_word.txt"
     min_num = 0
     ratio = 0.2
     p = pick.ranker(src_dir,res_dir,dict_dir,rank_dir,min_num,ratio)
@@ -142,22 +155,43 @@ def PICK():
     p.rank()
     return p
 
-def REMODEL(m,p):
+def REMODEL(m):
     try:
         os.mkdir("../remodel")
     except:
         pass
     print "********************"
     print "Remodeling..."
-    coeff_fvq = 20
-    coeff_num = 20
+    coeff_fvq = 5
+    coeff_num = 12
     coeff_key = 1
     res_dir = "../remodel"
     dict_dir = "../word.txt"
-    r = remodel.Remodel(m,p,coeff_fvq,coeff_num,coeff_key,res_dir,dict_dir)
+    r = remodel.Remodel(m,coeff_fvq,coeff_num,coeff_key,res_dir,dict_dir)
     r.run()
     print "Remodeling complete!"
     print "********************"
+    return r
+
+def STAT():
+    try:
+        os.mkdir("../stat")
+    except:
+        pass
+    print "********************"
+    print "Initiating statistics..."
+    src_dir = "../result/final.txt"
+    res_dir = "../stat/result_final.txt"
+    s = analysis.Analysis(src_dir,res_dir)
+    s.run()
+
+def SYNC(m,r):
+    print "********************"
+    print "Synchronizing..."
+    res_dir = "../result/final.txt"
+    ratio = 0.5
+    syn = sync.Sync(m,r,res_dir,ratio)
+    syn.run()
     
 
 reload(sys)
@@ -175,7 +209,13 @@ m = MODEL(r1,r2)
 
 #PARSE(m)
 
-p = PICK()
+#p = PICK()
 
-REMODEL(m,p)
+r = REMODEL(m)
+
+#STAT()
+
+SYNC(m,r)
+
+STAT()
 

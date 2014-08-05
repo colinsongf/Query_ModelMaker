@@ -123,7 +123,7 @@ class ranker(object):
 
     def rank(self):
         content = ""
-        if self.mode == "fvq":
+        if self.mode == "sqv":
             result = sorted(self.addToDict_fvq().items(), key = lambda d: d[1])[::-1]
         elif self.mode == "num":
             result = sorted(self.addToDict_num().items(), key = lambda d: d[1])[::-1]

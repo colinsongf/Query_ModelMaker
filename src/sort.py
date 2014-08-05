@@ -67,7 +67,7 @@ class Filter(object):
 
     def sort_files(self):
         query_log = os.listdir(self.src_dir)
-        result = ""\
+        result = ""
         result_path = (self.result_dir + "/result.txt")
         for filename in query_log:
             if filename.endswith(self.suffix):

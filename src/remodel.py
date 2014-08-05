@@ -1,9 +1,9 @@
 import os, re, rw
 
 class Remodel(object):
-    def __init__(self, m, p, coeff_fvq, coeff_num, coeff_key, res_dir, dict_dir):
+    def __init__(self, m, coeff_fvq, coeff_num, coeff_key, res_dir, dict_dir):
         self.m = m
-        self.p = p
+        #self.p = p
         self.coeff_fvq = coeff_fvq
         self.coeff_num = coeff_num
         self.coeff_key = coeff_key
@@ -11,6 +11,7 @@ class Remodel(object):
         self.dict_dir = dict_dir
         self.dic = {}
         self.dictionary = set()
+        self.dic_list = []
 
     def init_dict(self):
         words = rw.readFile(self.dict_dir).split('\n')[0:-1]
@@ -31,20 +32,20 @@ class Remodel(object):
             if word in key:
                 count += 1
         score += (count * self.coeff_key)
-        return score
-
+        return (score,dic[key])
+        
     def filter(self,dic,filename):
         d = {}
         for key in dic:
             d[key] = self.evaluate(key,dic)
         content = ""
         path = self.res_dir + '/' + filename + '.txt'
-        result = sorted(d.items(), key = lambda d: d[1])[::-1]
+        result = sorted(d.items(), key = lambda d: d[1][0])[::-1]
         for query,score in result:
             line = (query + '\t' + str(score) + '\n')
             content += line
         rw.writeFile(path,content)
-        return d
+        return (d,result)
 
     def classification(self):
         for category in self.m.type_dic:
@@ -52,7 +53,7 @@ class Remodel(object):
 
     def run(self):
         self.init_dict()
-        self.filter(self.m.dic,'general')
+        self.dic, self.dic_list = self.filter(self.m.dic,'general')
         self.classification()
             
         
