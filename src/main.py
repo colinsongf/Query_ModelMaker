@@ -53,13 +53,18 @@ def NEF():
         os.mkdir("../NEfilter")
     except:
         pass
+    try:
+        os.mkdir("../total")
+    except:
+        pass
     src_dir = "../sorted"
     res_dir = "../NEfilter"
+    total_dir = "../total/total.txt"
     dic_dir = "../NE"
     print "********************"
     print "NE Fitering..."
-    f = NEfilter.NEfilter(src_dir,res_dir,dic_dir)
-    f.filter()
+    f = NEfilter.NEfilter(src_dir,res_dir,total_dir,dic_dir)
+    f.run()
     print "NEF complete!"
     return f
 
@@ -74,7 +79,7 @@ def RANK(f):
         pass
     print "********************"
     print "Ranking..."
-    src_dir = "../NEfilter"
+    src_dir = "../total"
     res_dir = "../result/rank_init.txt"
     class_dir = "../result/sqv"
     mode = "sqv"
@@ -82,7 +87,7 @@ def RANK(f):
     r1.rank()
     r1.classification(f)
 
-    src_dir = "../NEfilter"
+    src_dir = "../total"
     res_dir = "../result/rank_init_num.txt"
     class_dir = "../result/num"
     mode = "num"
@@ -170,7 +175,6 @@ def REMODEL(m):
     r = remodel.Remodel(m,coeff_fvq,coeff_num,coeff_key,res_dir,dict_dir)
     r.run()
     print "Remodeling complete!"
-    print "********************"
     return r
 
 def STAT():
@@ -180,18 +184,24 @@ def STAT():
         pass
     print "********************"
     print "Initiating statistics..."
-    src_dir = "../result/final.txt"
-    res_dir = "../stat/result_final.txt"
+    src_dir = "../final/General.txt"
+    res_dir = "../stat/result_final2.txt"
     s = analysis.Analysis(src_dir,res_dir)
     s.run()
 
 def SYNC(m,r):
+    try:
+        os.mkdir("../final")
+    except:
+        pass
     print "********************"
     print "Synchronizing..."
-    res_dir = "../result/final.txt"
+    res_dir = "../final"
     ratio = 0.5
     syn = sync.Sync(m,r,res_dir,ratio)
     syn.run()
+    print "Synchronizing complete!"
+    return syn
     
 
 reload(sys)
@@ -213,9 +223,8 @@ m = MODEL(r1,r2)
 
 r = REMODEL(m)
 
+syn = SYNC(m,r)
+
 #STAT()
 
-SYNC(m,r)
-
-STAT()
-
+PARSE(syn)
