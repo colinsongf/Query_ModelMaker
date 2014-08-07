@@ -32,7 +32,6 @@ class Parser(object):
                 else:
                     new_segs.append(seg)
         return new_segs
-                
     
     def generalize(self):
         dic = self.m.dic
@@ -41,7 +40,7 @@ class Parser(object):
             k = key
             for t in self.types:
                 tag = '[' + t + ']'
-                k = k.replace(tag,'%.*%')
+                k = k.replace(tag,'%.+%')
             for sub_t in self.subtypes:
                 tag = '[' + sub_t + ']'
                 if sub_t == 'yyyymmdd':
@@ -50,25 +49,42 @@ class Parser(object):
                     k = k.replace(tag,'%[1-2][0-9][0-9][0-9]\.?[0-1][0-9]%')
                 elif sub_t == 'yyyy':
                     k = k.replace(tag,'%[1-2][0-9][0-9][0-9]%')
-                #elif sub_t == 'Season':
-                #    tag = '\xe7\xac\xac[Season]\xe5\xad\xa3'
-                #    k = k.replace(tag,'%xe7\xac\xac\d+\xe5\xad\xa3%')
                 else:
-                    k = k.replace(tag,'%\d+%')
+                    k = k.replace(tag,'%.+%')
             segs = k.split('%')
-            new_segs = []
+            l = []
             for seg in segs:
                 if seg != '':
-                    new_segs.append(seg)
+                    l.append(seg)
+            segs = l
+            new_segs = []
+            new_tags = []
+            for i in xrange(len(segs)):
+                seg = segs[i]
+                tag = tag_list[i]
+                if seg != '':
+                    if seg != '.+':
+                        new_segs.append(seg)
+                        new_tags.append(tag)
+                    else:
+                        if new_segs != []:
+                            if new_segs[-1] != '.+':
+                                new_segs.append(seg)
+                                new_tags.append(tag)
+                            else:
+                                new_tags[-1] += ('+' + tag)
+                        else:
+                            new_segs.append(seg)
+                            new_tags.append(tag)
 
             k = ""
             for seg in new_segs:
                 k += ('(' + seg + ')')
             k = ('^' + k + '$')
             if k not in self.dic:
-                self.dic[k] = {key:tag_list}
+                self.dic[k] = {key:new_tags}
             else:
-                self.dic[k][key] = tag_list
+                self.dic[k][key] = new_tags
             """
             pair_list = zip(new_segs,tag_list)
                     
@@ -131,13 +147,13 @@ class Parser(object):
             print "With tag: %s" % str(tag)
         print "********************"
         if exp == None:
-            return [(query + '[None]')]
+            return [(query,('None',))]
         elif (query == "") or (query.isspace()):
             return []
         else:
             p = re.compile(exp)
-            a = re.compile('\^(\(\.\*\))+\$')
-            b = re.compile('^(\(\.\*\))+$')
+            a = re.compile('\^(\(\.\+\))+\$')
+            b = re.compile('^(\(\.\+\))+$')
             if query.isdigit():
                 if tag != None and tag[0] in self.subtypes:
                     word = (query, tag)
@@ -208,11 +224,12 @@ class Parser(object):
             self.generalize()
         words = self.parse(self.del_space(query))
         for word in words:
-            if word[0] != "":
-                line = (word[0] + '\t')
-                for tag in word[1]:
-                    line += (tag + ' | ')
-                print line
+            if word != "":
+                if word[0] != "":
+                    line = (word[0] + '\t')
+                    for tag in word[1]:
+                        line += (tag + ' | ')
+                    print line
         return line
 
     def segmentation(self):
