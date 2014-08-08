@@ -1,5 +1,21 @@
 import rw, os
 
+def sort_txt(txt,cols,min_f):
+    query_list = txt.split('\n')[0:-1]
+    query_list_sorted = []
+    content_sorted = ""
+
+    for query in query_list:
+        temp = query.split('\t')
+        freq = int(temp[cols[-1]])
+        if freq >= min_f:
+            line = ""
+            for i in xrange(len(cols)-1):
+                line += (temp[cols[i]] + '\t')
+            line += temp[cols[-1]]
+            content_sorted += (line + '\n')
+    return content_sorted
+
 def sort_file(src_dir, res_dir, filename, cols, min_f):
     print "Pre-processing file: %s" % filename
     src_path = src_dir + '/' + filename

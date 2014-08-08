@@ -1,13 +1,15 @@
 import os, re, rw
 
 class Parser(object):
-    def __init__(self, m, src_dir, res_dir):
+    def __init__(self, m, src_dir, res_dir, num, suffix):
         self.m = m
         self.src_dir = src_dir
         self.res_dir = res_dir
         self.types = m.type_dic.keys()
         self.subtypes = m.subtypes
         self.dic = {}
+        self.num = num
+        self.suffix = suffix
 
     def permutations(self,a):
         # returns a list of all permutations of the list a
@@ -137,15 +139,15 @@ class Parser(object):
         p = re.compile(exp)
 
     def parse(self,query,tag=None):
-        print "********************"
-        print 'Segmenting: %s' % query
+        #print "********************"
+        #print 'Segmenting: %s' % query
         exp = self.matcher(query)
-        print "With expression: %s" % exp
-        if tag == None:
-            print "With tag: None"
-        else:
-            print "With tag: %s" % str(tag)
-        print "********************"
+        #print "With expression: %s" % exp
+        #if tag == None:
+        #    print "With tag: None"
+        #else:
+        #    print "With tag: %s" % str(tag)
+        #print "********************"
         if exp == None:
             return [(query,('None',))]
         elif (query == "") or (query.isspace()):
@@ -223,30 +225,46 @@ class Parser(object):
         if self.dic == {}:
             self.generalize()
         words = self.parse(self.del_space(query))
-        for word in words:
-            if word != "":
-                if word[0] != "":
-                    line = (word[0] + '\t')
-                    for tag in word[1]:
-                        line += (tag + ' | ')
-                    print line
+        query = ""
+        tags = ""
+        line = ""
+        if len(words) > 1:
+            for word in words:
+                if word != "":
+                    if word[0] != "":
+                        query += (word[0] + '/')
+                        tag_str = "("
+                        for tag in word[1]:
+                            if tag not in tag_str:
+                                tag_str += (tag + ',')
+                        tag_str = tag_str[0:-1] + ')'
+                        tags += (tag_str + '/')
+                        #print line
+            line = query + ' : ' + tags
         return line
+
+    def segment(self,filename):
+        print "********************"
+        print "Segmenting File: %s" % filename
+        src_path = self.src_dir + '/' + filename
+        res_path = self.res_dir + '/' + filename
+        query_log = rw.readFile(src_path).split('\n')[0:self.num]
+        content = ""
+        for line in query_log:
+            temp = line.split('\t')
+            #print "Segmenting: %s" % temp[0]
+            segmented = self.run(temp[0])
+            if segmented != "":
+                print "Segmenting: %s" % temp[0]
+                query = temp[0] + '\t' + segmented + '\t' + temp[1] + '\n'
+                content += query
+        rw.writeFile(res_path,content)
 
     def segmentation(self):
         files = os.listdir(self.src_dir)
         for filename in files:
-            print "********************"
-            print "Segmenting File: %s" % filename
-            src_path = self.src_dir + '/' + filename
-            res_path = self.res_dir + '/' + filename
-            query_log = rw.readFile(src_path).split('\n')[0:-1]
-            content = ""
-            for line in query_log:
-                temp = line.split('\t')
-                print "Segmenting: %s" % temp[0]
-                query = temp[0] + '\t' + self.run(temp[0]) + '\t' + temp[1] + '\n'
-                content += query
-            rw.writeFile(res_path,content)
+            if filename.endswith(self.suffix):
+                self.segment(filename)
             
                 
             

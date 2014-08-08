@@ -1,4 +1,6 @@
-import os, sys, re, rw, pre, sort, NEfilter, rank, model, parser, pick, remodel, analysis, sync
+import os, sys, re
+import rw, pre, sort
+import NEfilter, rank, model, parser, pick, remodel, analysis, sync, substitute
 
 def make_dir():
     os.mkdir("../pre")
@@ -128,22 +130,6 @@ def MODEL(r1,r2):
     print "Modeling complete!"
     return m
 
-def PARSE(m):
-    try:
-        os.mkdir("../seg")
-    except:
-        pass
-    print "********************"
-    print "Matching..."
-    src_dir = "../0719"
-    res_dir = "../seg/0719"
-    p = parser.Parser(m,src_dir,res_dir)
-    #p.segmentation()
-    while True:
-        query = raw_input("Enter a query: ")
-        p.run(query)
-    print "********************"
-
 def PICK():
     print "********************"
     print "Picking..."
@@ -202,7 +188,44 @@ def SYNC(m,r):
     syn.run()
     print "Synchronizing complete!"
     return syn
+
+def PARSE(m):
+    try:
+        os.mkdir("../seg")
+    except:
+        pass
+    print "********************"
+    print "Matching..."
+    src_dir = "../sorted/"
+    res_dir = "../seg"
+    num = 10000
+    suffix = "querystat"
+    p = parser.Parser(m,src_dir,res_dir,num,suffix)
+    #p.segment("youku_20140719.all.querystat")
+    #while True:
+    #    query = raw_input("Enter a query: ")
+    #    p.run(query)
+    #print "********************"
+    return p
     
+def SUB(p):
+    try:
+        os.mkdir("../../test_result")
+    except:
+        pass
+    print "********************"
+    print "Substituting..."
+    dic_dir = "../substitution.txt.utf8"
+    src_dir = "../../test"
+    res_dir = "../../test_result"
+    num = 20000
+    suffix = "querystat"
+    sub = substitute.Substitute(p,dic_dir,src_dir,res_dir,num,suffix)
+    sub.sub_all()
+    #while True:
+    #    query = raw_input("Enter a query: ")
+    #    sub.run(query)
+    #print "********************"
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -217,4 +240,5 @@ m = MODEL(r1,r2)
 r = REMODEL(m)
 syn = SYNC(m,r)
 #STAT()
-PARSE(syn)
+p = PARSE(syn)
+SUB(p)

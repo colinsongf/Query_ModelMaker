@@ -14,9 +14,10 @@ class ranker(object):
         files = os.listdir(self.src_dir)
         content = ""
         for filename in files:
-            path = self.src_dir + '/' + filename
-            txt = rw.readFile(path)
-            content += txt
+            if filename == 'total.txt':
+                path = self.src_dir + '/' + filename
+                txt = rw.readFile(path)
+                content += txt
         return content
 
     def check_season(self, query):
