@@ -1,3 +1,9 @@
+# substitute.py
+# Hongyu Li
+
+# This module is to further implement spelling correction / word substitution
+# on the basis of the parsing module
+
 import os, rw, pre
 
 class Substitute(object):
@@ -10,6 +16,7 @@ class Substitute(object):
         self.suffix = suffix
         self.dictionary = {}
 
+    # init the spelling correction dictionary
     def init_dic(self):
         lines = rw.readFile(self.dic_dir).split('\n')[0:-1]
         for line in lines:
@@ -17,11 +24,15 @@ class Substitute(object):
             self.dictionary[temp[0]] = temp[1]
         return self.dictionary
 
+    # search in the dicitonary and substitute the given word
     def sub_word(self,word):
         if word in self.dictionary:
             word = self.dictionary[word]
         return word
 
+    # subsititute the given query
+    # returns a list of tuples containing segments and tags
+    # or returns None if there is no substitution
     def sub_query(self,query):
         if self.p.dic == {}:
             self.p.generalize()
@@ -43,6 +54,8 @@ class Substitute(object):
         else:
             return None
 
+    # returns a long string containing the result of segmentation and
+    # the corresponding categoires to each segment after substitution
     def run(self,query):
         if self.dictionary == {}:
             self.init_dic()
@@ -61,11 +74,11 @@ class Substitute(object):
                                 tag_str += (tag + ',')
                         tag_str = tag_str[0:-1] + ')'
                         tags += (tag_str + '/')
-                        #print line
             line = query + ' : ' + tags
             print line
         return line
 
+    # substitution of the given file
     def sub(self,filename):
         print "********************"
         print "Substituting File: %s" % filename
@@ -83,6 +96,7 @@ class Substitute(object):
                 content += query
         rw.writeFile(res_path,content)
 
+    # substitution of all files in the source directory
     def sub_all(self):
         files = os.listdir(self.src_dir)
         for filename in files:

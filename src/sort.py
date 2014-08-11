@@ -12,7 +12,7 @@ class Filter(object):
     # 'result_dir': string type, the path of the result report
     # 'min_char': int type, the minimum length of the query you expect
     # 'targets': list type, the list of keywords you want to check for frequency
-    # 'suffix': string type, the filename suffix of the files you want to sort
+    # 'suffix': string type, the filename suffix of the files you want to filter
     def __init__(self, src_dir, tar_dir, result_dir, min_char, targets, suffix):
         self.src_dir = src_dir
         self.tar_dir = tar_dir
