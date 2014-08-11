@@ -1,6 +1,18 @@
+# sort.py
+# Hongyu Li
+
+# This module aims to further filter the query log according to the
+# expected length of the query
+
 import rw, os
 
 class Filter(object):
+    # 'src_dir': string type, the source directory
+    # 'tar_dir': string type, the directory you save the filtered query log
+    # 'result_dir': string type, the path of the result report
+    # 'min_char': int type, the minimum length of the query you expect
+    # 'targets': list type, the list of keywords you want to check for frequency
+    # 'suffix': string type, the filename suffix of the files you want to sort
     def __init__(self, src_dir, tar_dir, result_dir, min_char, targets, suffix):
         self.src_dir = src_dir
         self.tar_dir = tar_dir
@@ -29,7 +41,6 @@ class Filter(object):
         freq_sorted = 0
         query_list_sorted = []
         content_sorted = ""
-
         # sort the queries over min_char
         for query in query_list:
             temp = query.split("\t")

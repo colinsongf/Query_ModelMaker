@@ -1,17 +1,9 @@
+# main.py
+# Hongyu Li
+
 import os, sys, re
 import rw, pre, sort
 import NEfilter, rank, model, parser, pick, remodel, analysis, sync, substitute
-
-def make_dir():
-    os.mkdir("../pre")
-    os.mkdir("../sorted")
-    os.mkdir("../result")
-    os.mkdir("../NEfilter")
-    os.mkdir("../result/num")
-    os.mkdir("../result/fvq")
-    os.mkdir("../model")
-    os.mkdir("../model/fvq")
-    os.mkdir("../model/num")
     
 
 def pre_process():

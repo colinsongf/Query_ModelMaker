@@ -1,6 +1,17 @@
+# rank.py
+# Hongyu Li
+
+# This module is for further filtering import keywords
+# and ranking the queries in two orders: sqv and num
+# (num is the number of appearances)
+
 import re, os, rw
 
 class ranker(object):
+    # 'src_dir': string type, the source directory, should be one file
+    # 'res_dir': string type, the directory where you want the store the results
+    # 'class_dir': string type, the directory to save categorized results
+    # 'mode': string type, 'sqv' or 'num'
     def __init__(self, src_dir, res_dir, class_dir, mode):
         self.src_dir = src_dir
         self.res_dir = res_dir
@@ -10,6 +21,7 @@ class ranker(object):
         self.type_dic = {}
         self.subtypes = ['Season','Episode','yyyymmdd','yyyymm','yyyy','Part']
 
+    # get the whole query log in the 
     def get_text(self):
         files = os.listdir(self.src_dir)
         content = ""
@@ -20,6 +32,7 @@ class ranker(object):
                 content += txt
         return content
 
+    # filter the 'season' number
     def check_season(self, query):
         p = re.compile('\xe7\xac\xac.+\xe5\xad\xa3')
         s = set(p.findall(query))
@@ -28,6 +41,7 @@ class ranker(object):
             query = query.replace(key,tag)
         return query
 
+    # filter the 'episode' number
     def check_episode(self,query):
         p = re.compile('\xe7\xac\xac.+\xe9\x9b\x86')
         s = set(p.findall(query))
@@ -41,6 +55,7 @@ class ranker(object):
             query = query.replace(key,tag)
         return query
 
+    # filter the dates
     def check_date(self,query):
         p = re.compile('[1-2][0-9][0-9][0-9]\.?[0-1][0-9]\.?[0-3][0-9]')
         s = set(p.findall(query))
@@ -61,6 +76,7 @@ class ranker(object):
             query = query.replace(key,tag)
         return query
 
+    # filter the 'part' number
     def check_part(self,query):
         p = re.compile('(\[TV\]\d+|\[Movie\]\d+|\[Show\]\d+|\[Animation\]\d+)')
         s = set(p.findall(query))
@@ -84,6 +100,7 @@ class ranker(object):
         return query
             
 
+    # init the query dictionary with values of sqv
     def addToDict_fvq(self):
         lines = self.get_text().split('\n')[0:-1]
         for line in lines:
@@ -103,6 +120,7 @@ class ranker(object):
                 self.dic[query] = int(temp[1])
         return self.dic
 
+    # init the query dictionary with values of num
     def addToDict_num(self):
         lines = self.get_text().split('\n')[0:-1]
         for line in lines:
@@ -122,6 +140,7 @@ class ranker(object):
                 self.dic[query] = 1
         return self.dic
 
+    # rank the filtered results and save as a file in the result directory
     def rank(self):
         content = ""
         if self.mode == "sqv":
@@ -134,6 +153,7 @@ class ranker(object):
         rw.writeFile(self.res_dir,content)
         return content
 
+    # make separate rankings in different categories
     def classification(self, nef):
         for category in nef.dic:
             path = self.class_dir + '/' + category + '.txt' 

@@ -1,3 +1,10 @@
+# model.py
+# Hongyu Li
+
+# This module is for generating a initial list of models according to
+# certain standards
+# The result is not the final result
+
 import os, re, rw
 
 class Model(object):
@@ -19,7 +26,9 @@ class Model(object):
         self.dic_list = []
         self.type_dic = {}
         self.subtypes = r1.subtypes
-        
+
+    # Create a list of models, ranked by both sqv and num
+    # Write the file in the given directory
     def filter(self):
         for key in self.dic_fvq:
             if (self.dic_fvq[key] >= self.fvq_th) and (self.dic_num[key] >= self.num_th):
@@ -42,6 +51,7 @@ class Model(object):
             content += line
         rw.writeFile(path,content)
 
+    # Categorize the initial models and write into different files
     def classification(self):
         for category in self.r1.type_dic:
             d = {}
